@@ -1504,6 +1504,11 @@ h6 {
   background-size: cover;
   background-attachment: fixed
 }
+@supports (-webkit-touch-callout:none) {
+  .contactform {
+    background-attachment: scroll
+  }
+}
 .contactform__container {
   display: flex;
   flex-direction: column;
