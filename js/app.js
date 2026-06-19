@@ -4274,6 +4274,74 @@
             if (!select.contains(e.target)) head.classList.remove("_active");
         });
     });
+    const stepSection = document.querySelector(".stepbystep");
+    const stepItems = document.querySelectorAll(".stepbystep__item");
+    if (stepSection && stepItems.length && window.innerWidth > 991) {
+        let totalProgress = 0;
+        let targetProgress = 0;
+        let rafId = null;
+        let isLocked = false;
+        const STEP = .3;
+        function applyProgress() {
+            stepItems.forEach((item, i) => {
+                const p = Math.max(0, Math.min(1, totalProgress - i));
+                const maxPadding = (i + 1) * 180;
+                const paddingTop = (1 - p) * maxPadding;
+                item.style.paddingTop = `${paddingTop}px`;
+                item.style.opacity = p;
+            });
+        }
+        function animate() {
+            const diff = targetProgress - totalProgress;
+            if (Math.abs(diff) < 5e-4) {
+                totalProgress = targetProgress;
+                applyProgress();
+                rafId = null;
+                return;
+            }
+            totalProgress += diff * .02;
+            applyProgress();
+            rafId = requestAnimationFrame(animate);
+        }
+        function isInLockZone() {
+            const rect = stepSection.getBoundingClientRect();
+            return rect.top <= 80 && rect.bottom >= window.innerHeight;
+        }
+        function lock() {
+            if (!isLocked) {
+                isLocked = true;
+                window.lenis.stop();
+            }
+        }
+        function unlock() {
+            if (isLocked) {
+                isLocked = false;
+                window.lenis.start();
+            }
+        }
+        window.addEventListener("wheel", e => {
+            if (!isInLockZone()) {
+                unlock();
+                return;
+            }
+            const goingDown = e.deltaY > 0;
+            const goingUp = e.deltaY < 0;
+            if (goingDown && targetProgress >= stepItems.length) {
+                unlock();
+                return;
+            }
+            if (goingUp && targetProgress <= 0) {
+                unlock();
+                return;
+            }
+            e.preventDefault();
+            lock();
+            if (goingDown) targetProgress = Math.min(stepItems.length, targetProgress + STEP); else targetProgress = Math.max(0, targetProgress - STEP);
+            if (!rafId) rafId = requestAnimationFrame(animate);
+        }, {
+            passive: false
+        });
+    }
     window["FLS"] = true;
     menuInit();
 })();
