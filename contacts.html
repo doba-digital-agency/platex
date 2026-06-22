@@ -6,7 +6,7 @@
 	<meta charset="UTF-8">
 	<meta name="format-detection" content="telephone=no">
 	<!-- <style>body{opacity: 0;}</style> -->
-	<link rel="stylesheet" href="css/style.min.css?_v=20260619155655">
+	<link rel="stylesheet" href="css/style.min.css?_v=20260622153735">
 	<link rel="shortcut icon" href="favicon.ico">
 	<!-- <meta name="robots" content="noindex, nofollow"> -->
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -60,7 +60,7 @@
 						</div>
 					</nav>
 				</div>
-				<a href="" class="header__btn btn">
+				<a href="" data-popup="#popup" class="header__btn btn">
 					<svg class="btn__svg" xmlns="http://www.w3.org/2000/svg" width="15" height="6" viewBox="0 0 15 6" fill="none">
 						<path d="M2.62268e-07 3C1.1742e-07 4.65687 1.37756 6 3.07692 6C4.08319 5.99999 4.97648 5.52901 5.53777 4.80081C6.0259 4.16751 6.68749 3.56268 7.5 3.56268C8.31251 3.56268 8.9741 4.16751 9.46223 4.80081C10.0235 5.52901 10.9168 5.99999 11.9231 6C13.6224 6 15 4.65687 15 3C15 1.34313 13.6224 -5.97268e-07 11.9231 -7.4583e-07C10.9166 9.65659e-06 10.023 0.471244 9.46171 1.19976C8.9738 1.83303 8.31235 2.43777 7.5 2.43777C6.68765 2.43777 6.0262 1.83303 5.53829 1.19976C4.97698 0.471243 4.08344 9.05922e-06 3.07692 -1.51919e-06C1.37758 -1.66775e-06 2.52026e-05 1.34315 2.62268e-07 3Z" fill="" />
 					</svg>
@@ -260,13 +260,204 @@
 				</div>
 				<div class="footer__bot bot-footer">
 					<p class="bot-footer__link">© 2026 Platex. All rights reserved.</p>
+					<a href="https://doba.digital/" class="bot-footer__link">Developed by Doba Digital</a>
 					<a href="" class="bot-footer__link">Policies</a>
 				</div>
 			</div>
 		</footer>
 
+		<button class="scroll-up" type="button" aria-label="Прокрутити сторінку вгору">
+			<svg viewBox="0 0 24 24" aria-hidden="true">
+				<path d="M12 19V5M5.5 11.5 12 5l6.5 6.5" />
+			</svg>
+		</button>
+
 	</div>
-	<script src="js/app.min.js?_v=20260619155655"></script>
+	<div id="popup" aria-hidden="true" class="popup">
+		<div class="popup__wrapper">
+			<div class="popup__content">
+				<div class="popup__text">
+					<div class="contactform__form w100">
+						<div class="popup-title mb">
+							<button data-close type="button" class="popup__close">
+								<svg width="15" height="15" viewBox="0 0 23 23" fill="none" xmlns="http://www.w3.org/2000/svg">
+									<path opacity="1" d="M1.73333 1.48883L21.5469 21.0288" stroke="#fff" stroke-linecap="square" />
+									<path opacity="1" d="M21.2667 1.48883L1.45309 21.0288" stroke="#fff" stroke-linecap="square" />
+								</svg>
+							</button>
+							<div class="titles">
+								<div class="subtitle">Let’s discuss</div>
+								<div class="main-form__title">Send us a message</div>
+							</div>
+						</div>
+						<form action="" class="left-contact__form">
+							<div class="left-contact__fields">
+								<div class="left-contact__column">
+									<div class="left-contact__items">
+										<p class="left-contact__label">
+											First name
+											<span class="red">*</span>
+										</p>
+										<input type="text" class="left-contact__field" placeholder="Your name" />
+									</div>
+									<div class="left-contact__items">
+										<p class="left-contact__label">
+											Email adress
+											<span class="red">*</span>
+										</p>
+										<input type="text" class="left-contact__field" placeholder="Your email" />
+									</div>
+									<div class="left-contact__items">
+										<p class="left-contact__label">Organisation/company</p>
+										<input type="text" class="left-contact__field" placeholder="Your organisation or company" />
+									</div>
+								</div>
+								<div class="left-contact__column">
+									<div class="left-contact__items">
+										<p class="left-contact__label">
+											Last name
+											<span class="red">*</span>
+										</p>
+										<input type="text" class="left-contact__field" placeholder="To submit the form, you must fill in this field" />
+									</div>
+									<div class="left-contact__items">
+										<p class="left-contact__label">Phone number</p>
+										<input type="text" class="left-contact__field" placeholder="your@email.com" />
+									</div>
+									<div class="left-contact__items">
+										<p class="left-contact__label">Type of enquiry</p>
+										<div class="select">
+											<div class="select__head">
+												<span class="select__placeholder">Select enquiry type</span>
+												<svg class="select__arrow" xmlns="http://www.w3.org/2000/svg" width="10" height="6" viewBox="0 0 10 6" fill="none">
+													<path d="M9.41679 0C9.93532 0.000130839 10.195 0.704698 9.82842 1.11671L5.82331 5.6169C5.36859 6.1277 4.6315 6.1277 4.17678 5.6169L0.171692 1.11671C-0.195062 0.704567 0.0646561 0 0.583335 0H9.41679Z" fill="#006AD3" />
+												</svg>
+											</div>
+											<div class="select__dropdown">
+												<div class="select__option">Government project</div>
+												<div class="select__option">Enterprise project</div>
+												<div class="select__option">Community connectivity</div>
+												<div class="select__option">General enquiry</div>
+											</div>
+											<input type="hidden" name="enquiry_type" class="select__value" />
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="left-contact__bot">
+								<div class="left-contact__items">
+									<p class="left-contact__label">Message</p>
+									<textarea class="left-contact__textarea" placeholder="Tell us about your project — or just leave your details and we'll be in touch." name="" id=""></textarea>
+								</div>
+								<div class="left-contact__check">
+									<label class="check">
+										<input class="check__input" type="checkbox" name="privacy" required />
+										<span class="check__box"></span>
+										<span class="check__text">I agree to the processing of my personal data according to
+											the <a href="#" class="check__link">Privacy Policy</a></span>
+									</label>
+								</div>
+							</div>
+							<button class="left-contact__submit submit btn">
+								<span class="btn__text">Send message</span>
+								<svg class="btn__svg" xmlns="http://www.w3.org/2000/svg" width="15" height="6" viewBox="0 0 15 6" fill="none">
+									<path d="M2.62268e-07 3C1.1742e-07 4.65687 1.37756 6 3.07692 6C4.08319 5.99999 4.97648 5.52901 5.53777 4.80081C6.0259 4.16751 6.68749 3.56268 7.5 3.56268C8.31251 3.56268 8.9741 4.16751 9.46223 4.80081C10.0235 5.52901 10.9168 5.99999 11.9231 6C13.6224 6 15 4.65687 15 3C15 1.34313 13.6224 -5.97268e-07 11.9231 -7.4583e-07C10.9166 9.65659e-06 10.023 0.471244 9.46171 1.19976C8.9738 1.83303 8.31235 2.43777 7.5 2.43777C6.68765 2.43777 6.0262 1.83303 5.53829 1.19976C4.97698 0.471243 4.08344 9.05922e-06 3.07692 -1.51919e-06C1.37758 -1.66775e-06 2.52026e-05 1.34315 2.62268e-07 3Z" fill="" />
+								</svg>
+							</button>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div id="popup-readmore" aria-hidden="true" class="popup">
+		<div class="popup__wrapper">
+			<div class="popup__content readmore-content">
+				<div class="popup__text">
+					<div class="popup__readmore readmore-popup">
+						<div class="popup-title readmore-popup__titles">
+							<button data-close type="button" class="popup__close readmore-popup__close">
+								<svg width="15" height="15" viewBox="0 0 23 23" fill="none" xmlns="http://www.w3.org/2000/svg">
+									<path opacity="1" d="M1.73333 1.48883L21.5469 21.0288" stroke="#006AD3" stroke-linecap="square" />
+									<path opacity="1" d="M21.2667 1.48883L1.45309 21.0288" stroke="#006AD3" stroke-linecap="square" />
+								</svg>
+							</button>
+							<div class="titles">
+								<div class="readmore-popup__subtitle subtitle">
+									<span>Federal government /</span>
+									<span>Community connectivity</span>
+								</div>
+								<div class="readmore-popup__title white">
+									Remote Community Connectivity
+								</div>
+							</div>
+						</div>
+						<div class="readmore-popup__items">
+							<div class="readmore-popup__item item-readmore">
+								<p class="item-readmore__subtitle subtitle">Problem</p>
+								<h2 class="item-readmore__title h4">
+									No Reliable Internet Access
+								</h2>
+								<p class="item-readmore__descriptions descriptions">
+									Remote communities had limited or no reliable internet access,
+									directly impacting education, health services, and daily
+									communication. Existing infrastructure was either non-existent
+									or too unreliable to depend on.
+								</p>
+							</div>
+							<div class="readmore-popup__item item-readmore">
+								<p class="item-readmore__subtitle subtitle">Solution</p>
+								<h2 class="item-readmore__title h4">
+									Public Wi-Fi + Starlink Satellite Backhaul
+								</h2>
+								<p class="item-readmore__descriptions descriptions">
+									Design of a public Wi-Fi network with Starlink satellite
+									backhaul — optimised for remote community use with content
+									filtering, access controls, and solar-powered operation.
+								</p>
+							</div>
+							<div class="readmore-popup__item item-readmore">
+								<p class="item-readmore__subtitle subtitle">Implementation</p>
+								<h2 class="item-readmore__title h4">
+									Mesh Network + Solar Deployment
+								</h2>
+								<p class="item-readmore__descriptions descriptions">
+									Deployment of multiple Starlink systems across community zones,
+									installation of outdoor mesh wireless infrastructure, solar and
+									battery-powered equipment for off-grid operation, and
+									community-focused access management including captive portals
+									and content filtering.
+								</p>
+							</div>
+						</div>
+						<div class="readmore-popup__result">
+							<div class="readmore-popup__text text-readmore">
+								<p class="text-readmore__subtitle subtitle">Result</p>
+								<p class="text-readmore__descriptions">
+									Connectivity delivered across multiple community zones. Hundreds
+									of users gained reliable internet access. Fully operational
+									within weeks of deployment. Significant improvement in service
+									availability and uptime.
+								</p>
+							</div>
+							<img src="img/readmore-decore.svg" alt="image" class="readmore-popup__decore" />
+						</div>
+						<div class="readmore__end end-readmore">
+							<h3 class="end-readmore__title">Facing a similar challenge?</h3>
+							<a href="" data-popup="#popup" class="readmore__btn btn">
+								<svg class="btn__svg" xmlns="http://www.w3.org/2000/svg" width="15" height="6" viewBox="0 0 15 6" fill="none">
+									<path d="M2.62268e-07 3C1.1742e-07 4.65687 1.37756 6 3.07692 6C4.08319 5.99999 4.97648 5.52901 5.53777 4.80081C6.0259 4.16751 6.68749 3.56268 7.5 3.56268C8.31251 3.56268 8.9741 4.16751 9.46223 4.80081C10.0235 5.52901 10.9168 5.99999 11.9231 6C13.6224 6 15 4.65687 15 3C15 1.34313 13.6224 -5.97268e-07 11.9231 -7.4583e-07C10.9166 9.65659e-06 10.023 0.471244 9.46171 1.19976C8.9738 1.83303 8.31235 2.43777 7.5 2.43777C6.68765 2.43777 6.0262 1.83303 5.53829 1.19976C4.97698 0.471243 4.08344 9.05922e-06 3.07692 -1.51919e-06C1.37758 -1.66775e-06 2.52026e-05 1.34315 2.62268e-07 3Z" fill="" />
+								</svg>
+								<span class="btn__text">Let’s talk</span>
+							</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script src="js/app.min.js?_v=20260622153735"></script>
 
 </body>
 

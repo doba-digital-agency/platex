@@ -1,5 +1,8 @@
 (() => {
     "use strict";
+    function getHash() {
+        if (location.hash) return location.hash.replace("#", "");
+    }
     let bodyLockStatus = true;
     let bodyLockToggle = (delay = 500) => {
         if (document.documentElement.classList.contains("lock")) bodyUnlock(delay); else bodyLock(delay);
@@ -43,6 +46,10 @@
             }
         });
     }
+    function menuClose() {
+        bodyUnlock();
+        document.documentElement.classList.remove("menu-open");
+    }
     function FLS(message) {
         setTimeout(() => {
             if (window.FLS) console.log(message);
@@ -53,6 +60,253 @@
             return self.indexOf(item) === index;
         });
     }
+    const flsModules = {};
+    class Popup {
+        constructor(options) {
+            let config = {
+                logging: true,
+                init: true,
+                attributeOpenButton: "data-popup",
+                attributeCloseButton: "data-close",
+                fixElementSelector: "[data-lp]",
+                youtubeAttribute: "data-popup-youtube",
+                youtubePlaceAttribute: "data-popup-youtube-place",
+                setAutoplayYoutube: true,
+                classes: {
+                    popup: "popup",
+                    popupContent: "popup__content",
+                    popupActive: "popup_show",
+                    bodyActive: "popup-show"
+                },
+                focusCatch: true,
+                closeEsc: true,
+                bodyLock: true,
+                hashSettings: {
+                    location: true,
+                    goHash: true
+                },
+                on: {
+                    beforeOpen: function() {},
+                    afterOpen: function() {},
+                    beforeClose: function() {},
+                    afterClose: function() {}
+                }
+            };
+            this.youTubeCode;
+            this.isOpen = false;
+            this.targetOpen = {
+                selector: false,
+                element: false
+            };
+            this.previousOpen = {
+                selector: false,
+                element: false
+            };
+            this.lastClosed = {
+                selector: false,
+                element: false
+            };
+            this._dataValue = false;
+            this.hash = false;
+            this._reopen = false;
+            this._selectorOpen = false;
+            this.lastFocusEl = false;
+            this._focusEl = [ "a[href]", 'input:not([disabled]):not([type="hidden"]):not([aria-hidden])', "button:not([disabled]):not([aria-hidden])", "select:not([disabled]):not([aria-hidden])", "textarea:not([disabled]):not([aria-hidden])", "area[href]", "iframe", "object", "embed", "[contenteditable]", '[tabindex]:not([tabindex^="-"])' ];
+            this.options = {
+                ...config,
+                ...options,
+                classes: {
+                    ...config.classes,
+                    ...options?.classes
+                },
+                hashSettings: {
+                    ...config.hashSettings,
+                    ...options?.hashSettings
+                },
+                on: {
+                    ...config.on,
+                    ...options?.on
+                }
+            };
+            this.bodyLock = false;
+            this.options.init ? this.initPopups() : null;
+        }
+        initPopups() {
+            this.popupLogging(`Прокинувся`);
+            this.eventsPopup();
+        }
+        eventsPopup() {
+            document.addEventListener("click", function(e) {
+                const buttonOpen = e.target.closest(`[${this.options.attributeOpenButton}]`);
+                if (buttonOpen) {
+                    e.preventDefault();
+                    this._dataValue = buttonOpen.getAttribute(this.options.attributeOpenButton) ? buttonOpen.getAttribute(this.options.attributeOpenButton) : "error";
+                    this.youTubeCode = buttonOpen.getAttribute(this.options.youtubeAttribute) ? buttonOpen.getAttribute(this.options.youtubeAttribute) : null;
+                    if (this._dataValue !== "error") {
+                        if (!this.isOpen) this.lastFocusEl = buttonOpen;
+                        this.targetOpen.selector = `${this._dataValue}`;
+                        this._selectorOpen = true;
+                        this.open();
+                        return;
+                    } else this.popupLogging(`Йой, не заповнено атрибут у ${buttonOpen.classList}`);
+                    return;
+                }
+                const buttonClose = e.target.closest(`[${this.options.attributeCloseButton}]`);
+                if (buttonClose || !e.target.closest(`.${this.options.classes.popupContent}`) && this.isOpen) {
+                    e.preventDefault();
+                    this.close();
+                    return;
+                }
+            }.bind(this));
+            document.addEventListener("keydown", function(e) {
+                if (this.options.closeEsc && e.which == 27 && e.code === "Escape" && this.isOpen) {
+                    e.preventDefault();
+                    this.close();
+                    return;
+                }
+                if (this.options.focusCatch && e.which == 9 && this.isOpen) {
+                    this._focusCatch(e);
+                    return;
+                }
+            }.bind(this));
+            if (this.options.hashSettings.goHash) {
+                window.addEventListener("hashchange", function() {
+                    if (window.location.hash) this._openToHash(); else this.close(this.targetOpen.selector);
+                }.bind(this));
+                window.addEventListener("load", function() {
+                    if (window.location.hash) this._openToHash();
+                }.bind(this));
+            }
+        }
+        open(selectorValue) {
+            if (bodyLockStatus) {
+                this.bodyLock = document.documentElement.classList.contains("lock") && !this.isOpen ? true : false;
+                if (selectorValue && typeof selectorValue === "string" && selectorValue.trim() !== "") {
+                    this.targetOpen.selector = selectorValue;
+                    this._selectorOpen = true;
+                }
+                if (this.isOpen) {
+                    this._reopen = true;
+                    this.close();
+                }
+                if (!this._selectorOpen) this.targetOpen.selector = this.lastClosed.selector;
+                if (!this._reopen) this.previousActiveElement = document.activeElement;
+                this.targetOpen.element = document.querySelector(this.targetOpen.selector);
+                if (this.targetOpen.element) {
+                    if (this.youTubeCode) {
+                        const codeVideo = this.youTubeCode;
+                        const urlVideo = `https://www.youtube.com/embed/${codeVideo}?rel=0&showinfo=0&autoplay=1`;
+                        const iframe = document.createElement("iframe");
+                        iframe.setAttribute("allowfullscreen", "");
+                        const autoplay = this.options.setAutoplayYoutube ? "autoplay;" : "";
+                        iframe.setAttribute("allow", `${autoplay}; encrypted-media`);
+                        iframe.setAttribute("src", urlVideo);
+                        if (!this.targetOpen.element.querySelector(`[${this.options.youtubePlaceAttribute}]`)) {
+                            this.targetOpen.element.querySelector(".popup__text").setAttribute(`${this.options.youtubePlaceAttribute}`, "");
+                        }
+                        this.targetOpen.element.querySelector(`[${this.options.youtubePlaceAttribute}]`).appendChild(iframe);
+                    }
+                    if (this.options.hashSettings.location) {
+                        this._getHash();
+                        this._setHash();
+                    }
+                    this.options.on.beforeOpen(this);
+                    document.dispatchEvent(new CustomEvent("beforePopupOpen", {
+                        detail: {
+                            popup: this
+                        }
+                    }));
+                    this.targetOpen.element.classList.add(this.options.classes.popupActive);
+                    document.documentElement.classList.add(this.options.classes.bodyActive);
+                    if (!this._reopen) !this.bodyLock ? bodyLock() : null; else this._reopen = false;
+                    this.targetOpen.element.setAttribute("aria-hidden", "false");
+                    this.previousOpen.selector = this.targetOpen.selector;
+                    this.previousOpen.element = this.targetOpen.element;
+                    this._selectorOpen = false;
+                    this.isOpen = true;
+                    setTimeout(() => {
+                        this._focusTrap();
+                    }, 50);
+                    this.options.on.afterOpen(this);
+                    document.dispatchEvent(new CustomEvent("afterPopupOpen", {
+                        detail: {
+                            popup: this
+                        }
+                    }));
+                    this.popupLogging(`Відкрив попап`);
+                } else this.popupLogging(`Йой, такого попапу немає. Перевірте коректність введення. `);
+            }
+        }
+        close(selectorValue) {
+            if (selectorValue && typeof selectorValue === "string" && selectorValue.trim() !== "") this.previousOpen.selector = selectorValue;
+            if (!this.isOpen || !bodyLockStatus) return;
+            this.options.on.beforeClose(this);
+            document.dispatchEvent(new CustomEvent("beforePopupClose", {
+                detail: {
+                    popup: this
+                }
+            }));
+            if (this.youTubeCode) if (this.targetOpen.element.querySelector(`[${this.options.youtubePlaceAttribute}]`)) this.targetOpen.element.querySelector(`[${this.options.youtubePlaceAttribute}]`).innerHTML = "";
+            this.previousOpen.element.classList.remove(this.options.classes.popupActive);
+            this.previousOpen.element.setAttribute("aria-hidden", "true");
+            if (!this._reopen) {
+                document.documentElement.classList.remove(this.options.classes.bodyActive);
+                !this.bodyLock ? bodyUnlock() : null;
+                this.isOpen = false;
+            }
+            this._removeHash();
+            if (this._selectorOpen) {
+                this.lastClosed.selector = this.previousOpen.selector;
+                this.lastClosed.element = this.previousOpen.element;
+            }
+            this.options.on.afterClose(this);
+            document.dispatchEvent(new CustomEvent("afterPopupClose", {
+                detail: {
+                    popup: this
+                }
+            }));
+            setTimeout(() => {
+                this._focusTrap();
+            }, 50);
+            this.popupLogging(`Закрив попап`);
+        }
+        _getHash() {
+            if (this.options.hashSettings.location) this.hash = this.targetOpen.selector.includes("#") ? this.targetOpen.selector : this.targetOpen.selector.replace(".", "#");
+        }
+        _openToHash() {
+            let classInHash = document.querySelector(`.${window.location.hash.replace("#", "")}`) ? `.${window.location.hash.replace("#", "")}` : document.querySelector(`${window.location.hash}`) ? `${window.location.hash}` : null;
+            const buttons = document.querySelector(`[${this.options.attributeOpenButton} = "${classInHash}"]`) ? document.querySelector(`[${this.options.attributeOpenButton} = "${classInHash}"]`) : document.querySelector(`[${this.options.attributeOpenButton} = "${classInHash.replace(".", "#")}"]`);
+            this.youTubeCode = buttons.getAttribute(this.options.youtubeAttribute) ? buttons.getAttribute(this.options.youtubeAttribute) : null;
+            if (buttons && classInHash) this.open(classInHash);
+        }
+        _setHash() {
+            history.pushState("", "", this.hash);
+        }
+        _removeHash() {
+            history.pushState("", "", window.location.href.split("#")[0]);
+        }
+        _focusCatch(e) {
+            const focusable = this.targetOpen.element.querySelectorAll(this._focusEl);
+            const focusArray = Array.prototype.slice.call(focusable);
+            const focusedIndex = focusArray.indexOf(document.activeElement);
+            if (e.shiftKey && focusedIndex === 0) {
+                focusArray[focusArray.length - 1].focus();
+                e.preventDefault();
+            }
+            if (!e.shiftKey && focusedIndex === focusArray.length - 1) {
+                focusArray[0].focus();
+                e.preventDefault();
+            }
+        }
+        _focusTrap() {
+            const focusable = this.previousOpen.element.querySelectorAll(this._focusEl);
+            if (!this.isOpen && this.lastFocusEl) this.lastFocusEl.focus(); else focusable[0].focus();
+        }
+        popupLogging(message) {
+            this.options.logging ? FLS(`[Попапос]: ${message}`) : null;
+        }
+    }
+    flsModules.popup = new Popup({});
     function isObject(obj) {
         return obj !== null && typeof obj === "object" && "constructor" in obj && obj.constructor === Object;
     }
@@ -3261,7 +3515,6 @@
     window.addEventListener("load", function(e) {
         initSliders();
     });
-    const flsModules = {};
     class ScrollWatcher {
         constructor(props) {
             let defaultConfig = {
@@ -3365,7 +3618,90 @@
         }
     }
     flsModules.watcher = new ScrollWatcher({});
+    let gotoBlock = (targetBlock, noHeader = false, speed = 500, offsetTop = 0) => {
+        const targetBlockElement = document.querySelector(targetBlock);
+        if (targetBlockElement) {
+            let headerItem = "";
+            let headerItemHeight = 0;
+            if (noHeader) {
+                headerItem = "header.header";
+                const headerElement = document.querySelector(headerItem);
+                if (!headerElement.classList.contains("_header-scroll")) {
+                    headerElement.style.cssText = `transition-duration: 0s;`;
+                    headerElement.classList.add("_header-scroll");
+                    headerItemHeight = headerElement.offsetHeight;
+                    headerElement.classList.remove("_header-scroll");
+                    setTimeout(() => {
+                        headerElement.style.cssText = ``;
+                    }, 0);
+                } else headerItemHeight = headerElement.offsetHeight;
+            }
+            let options = {
+                speedAsDuration: true,
+                speed,
+                header: headerItem,
+                offset: offsetTop,
+                easing: "easeOutQuad"
+            };
+            document.documentElement.classList.contains("menu-open") ? menuClose() : null;
+            if (typeof SmoothScroll !== "undefined") (new SmoothScroll).animateScroll(targetBlockElement, "", options); else {
+                let targetBlockElementPosition = targetBlockElement.getBoundingClientRect().top + scrollY;
+                targetBlockElementPosition = headerItemHeight ? targetBlockElementPosition - headerItemHeight : targetBlockElementPosition;
+                targetBlockElementPosition = offsetTop ? targetBlockElementPosition - offsetTop : targetBlockElementPosition;
+                window.scrollTo({
+                    top: targetBlockElementPosition,
+                    behavior: "smooth"
+                });
+            }
+            FLS(`[gotoBlock]: Юхуу...їдемо до ${targetBlock}`);
+        } else FLS(`[gotoBlock]: Йой... Такого блоку немає на сторінці: ${targetBlock}`);
+    };
     let addWindowScrollEvent = false;
+    function pageNavigation() {
+        document.addEventListener("click", pageNavigationAction);
+        document.addEventListener("watcherCallback", pageNavigationAction);
+        function pageNavigationAction(e) {
+            if (e.type === "click") {
+                const targetElement = e.target;
+                if (targetElement.closest("[data-goto]")) {
+                    const gotoLink = targetElement.closest("[data-goto]");
+                    const gotoLinkSelector = gotoLink.dataset.goto ? gotoLink.dataset.goto : "";
+                    const noHeader = gotoLink.hasAttribute("data-goto-header") ? true : false;
+                    const gotoSpeed = gotoLink.dataset.gotoSpeed ? gotoLink.dataset.gotoSpeed : 500;
+                    const offsetTop = gotoLink.dataset.gotoTop ? parseInt(gotoLink.dataset.gotoTop) : 0;
+                    if (flsModules.fullpage) {
+                        const fullpageSection = document.querySelector(`${gotoLinkSelector}`).closest("[data-fp-section]");
+                        const fullpageSectionId = fullpageSection ? +fullpageSection.dataset.fpId : null;
+                        if (fullpageSectionId !== null) {
+                            flsModules.fullpage.switchingSection(fullpageSectionId);
+                            document.documentElement.classList.contains("menu-open") ? menuClose() : null;
+                        }
+                    } else gotoBlock(gotoLinkSelector, noHeader, gotoSpeed, offsetTop);
+                    e.preventDefault();
+                }
+            } else if (e.type === "watcherCallback" && e.detail) {
+                const entry = e.detail.entry;
+                const targetElement = entry.target;
+                if (targetElement.dataset.watch === "navigator") {
+                    document.querySelector(`[data-goto]._navigator-active`);
+                    let navigatorCurrentItem;
+                    if (targetElement.id && document.querySelector(`[data-goto="#${targetElement.id}"]`)) navigatorCurrentItem = document.querySelector(`[data-goto="#${targetElement.id}"]`); else if (targetElement.classList.length) for (let index = 0; index < targetElement.classList.length; index++) {
+                        const element = targetElement.classList[index];
+                        if (document.querySelector(`[data-goto=".${element}"]`)) {
+                            navigatorCurrentItem = document.querySelector(`[data-goto=".${element}"]`);
+                            break;
+                        }
+                    }
+                    if (entry.isIntersecting) navigatorCurrentItem ? navigatorCurrentItem.classList.add("_navigator-active") : null; else navigatorCurrentItem ? navigatorCurrentItem.classList.remove("_navigator-active") : null;
+                }
+            }
+        }
+        if (getHash()) {
+            let goToHash;
+            if (document.querySelector(`#${getHash()}`)) goToHash = `#${getHash()}`; else if (document.querySelector(`.${getHash()}`)) goToHash = `.${getHash()}`;
+            goToHash ? gotoBlock(goToHash, true, 500, 20) : null;
+        }
+    }
     setTimeout(() => {
         if (addWindowScrollEvent) {
             let windowScroll = new Event("windowScroll");
@@ -4277,17 +4613,20 @@
     const stepSection = document.querySelector(".stepbystep");
     const stepItems = document.querySelectorAll(".stepbystep__item");
     if (stepSection && stepItems.length && window.innerWidth > 991) {
+        const COUNT = stepItems.length;
+        const SPREAD = .2;
         let totalProgress = 0;
         let targetProgress = 0;
         let rafId = null;
         let isLocked = false;
         const STEP = .3;
         function applyProgress() {
+            const t = totalProgress / COUNT;
             stepItems.forEach((item, i) => {
-                const p = Math.max(0, Math.min(1, totalProgress - i));
+                const speed = 1 + (COUNT - 1 - i) * SPREAD;
+                const p = Math.max(0, Math.min(1, t * speed));
                 const maxPadding = (i + 1) * 180;
-                const paddingTop = (1 - p) * maxPadding;
-                item.style.paddingTop = `${paddingTop}px`;
+                item.style.paddingTop = `${(1 - p) * maxPadding}px`;
                 item.style.opacity = p;
             });
         }
@@ -4326,7 +4665,7 @@
             }
             const goingDown = e.deltaY > 0;
             const goingUp = e.deltaY < 0;
-            if (goingDown && targetProgress >= stepItems.length) {
+            if (goingDown && targetProgress >= COUNT) {
                 unlock();
                 return;
             }
@@ -4336,12 +4675,114 @@
             }
             e.preventDefault();
             lock();
-            if (goingDown) targetProgress = Math.min(stepItems.length, targetProgress + STEP); else targetProgress = Math.max(0, targetProgress - STEP);
+            if (goingDown) targetProgress = Math.min(COUNT, targetProgress + STEP); else targetProgress = Math.max(0, targetProgress - STEP);
             if (!rafId) rafId = requestAnimationFrame(animate);
         }, {
             passive: false
         });
     }
+    document.querySelectorAll(".partners__track-wrap").forEach(wrapper => {
+        const list = wrapper.querySelector(".partners__list");
+        if (!list) return;
+        const originalItems = Array.from(list.children).map(item => item.cloneNode(true));
+        const direction = wrapper.dataset.direction || "left";
+        const speed = Number(wrapper.dataset.speed) || 70;
+        let animationFrameId = null;
+        let resizeTimeout = null;
+        let buildId = 0;
+        function createGroup(isClone = false) {
+            const group = document.createElement("div");
+            group.className = "partners__group";
+            if (isClone) group.setAttribute("aria-hidden", "true");
+            originalItems.forEach(originalItem => {
+                const item = originalItem.cloneNode(true);
+                if (isClone) item.querySelectorAll("img").forEach(image => {
+                    image.alt = "";
+                });
+                group.appendChild(item);
+            });
+            return group;
+        }
+        function waitForImages(container) {
+            const images = Array.from(container.querySelectorAll("img"));
+            return Promise.all(images.map(image => {
+                if (image.complete) {
+                    if (typeof image.decode === "function") return image.decode().catch(() => {});
+                    return Promise.resolve();
+                }
+                return new Promise(resolve => {
+                    image.addEventListener("load", resolve, {
+                        once: true
+                    });
+                    image.addEventListener("error", resolve, {
+                        once: true
+                    });
+                });
+            }));
+        }
+        async function buildMarquee() {
+            const currentBuildId = ++buildId;
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+            list.classList.remove("is-ready");
+            list.style.transform = "";
+            list.innerHTML = "";
+            const firstGroup = createGroup(false);
+            list.appendChild(firstGroup);
+            await waitForImages(firstGroup);
+            if (currentBuildId !== buildId) return;
+            const groupWidth = firstGroup.getBoundingClientRect().width;
+            const wrapperWidth = wrapper.getBoundingClientRect().width;
+            if (!groupWidth || !wrapperWidth) return;
+            const groupsCount = Math.max(3, Math.ceil(wrapperWidth / groupWidth) + 2);
+            for (let index = 1; index < groupsCount; index++) list.appendChild(createGroup(true));
+            let position = direction === "right" ? -groupWidth : 0;
+            let previousTime = performance.now();
+            list.style.transform = `translate3d(${position}px, 0, 0)`;
+            list.classList.add("is-ready");
+            function animate(currentTime) {
+                const deltaTime = Math.min((currentTime - previousTime) / 1e3, .05);
+                previousTime = currentTime;
+                const movement = speed * deltaTime;
+                if (direction === "right") {
+                    position += movement;
+                    if (position >= 0) position -= groupWidth;
+                } else {
+                    position -= movement;
+                    if (position <= -groupWidth) position += groupWidth;
+                }
+                list.style.transform = `translate3d(${position}px, 0, 0)`;
+                animationFrameId = requestAnimationFrame(animate);
+            }
+            animationFrameId = requestAnimationFrame(animate);
+        }
+        buildMarquee();
+        const resizeObserver = new ResizeObserver(() => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                buildMarquee();
+            }, 150);
+        });
+        resizeObserver.observe(wrapper);
+    });
+    const scrollUpButton = document.querySelector(".scroll-up");
+    if (scrollUpButton) {
+        const showButtonOffset = 500;
+        const toggleScrollUpButton = () => {
+            scrollUpButton.classList.toggle("_show", window.scrollY > showButtonOffset);
+        };
+        toggleScrollUpButton();
+        window.addEventListener("scroll", toggleScrollUpButton, {
+            passive: true
+        });
+        scrollUpButton.addEventListener("click", () => {
+            const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+            window.scrollTo({
+                top: 0,
+                behavior: reduceMotion ? "auto" : "smooth"
+            });
+        });
+    }
     window["FLS"] = true;
     menuInit();
+    pageNavigation();
 })();
