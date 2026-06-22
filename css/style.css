@@ -3203,7 +3203,7 @@ body::after {
     height: 21px
   }
   .w100 {
-    width: 100%
+    width: 100%!important
   }
   .mb {
     margin-bottom: 16px
